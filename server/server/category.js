@@ -44,8 +44,4 @@ const categoryServer = {
     }
 };
 
-// Apply authMiddleware to all routes
-categoryServer.GetAllCategory = authMiddleware(categoryServer.GetAllCategory);
-categoryServer.addCategory = authMiddleware(categoryServer.addCategory);
-
 module.exports = categoryServer;

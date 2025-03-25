@@ -1,90 +1,73 @@
-const recipe = require('../localStorage/recipe')
-var LocalStorage = require('node-localstorage').LocalStorage;
-
-localStorage = new LocalStorage('./scratch');
-
-
+const mongoose = require('mongoose');
+const Recipe = require('../models/recipe');
 
 const recipeServer = {
-    GetAllRecipe: (_req, res) => {
-        let recipees = JSON.parse(localStorage.getItem('recipe') | [])
-        if (!recipees.length) {
-            localStorage.setItem('recipe', JSON.stringify(recipe))
-            recipees = recipe;
+    GetAllRecipe: async (_req, res) => {
+        try {
+            const recipes = await Recipe.find();
+            res.json(recipes);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
-        res.send(recipees);
     },
 
-    addRecipy: (req, res) => {
-        const {
-            Name, UserId, CategoryId, Img, Duration, Difficulty, Description,
-            Ingrident, Instructions } = req.body;
-        let recipees = JSON.parse(localStorage.getItem('recipe') | [])
-        if (!recipees.length) {
-            localStorage.setItem('recipe', JSON.stringify(recipe))
-            recipees = recipe;
+    addRecipy: async (req, res) => {
+        try {
+            const { Name, UserId, CategoryId, Img, Duration, Difficulty, Description, Ingrident, Instructions } = req.body;
+
+            if (!Name || !UserId || !CategoryId || !Img || !Duration || !Difficulty || !Description || !Ingrident || !Instructions) {
+                return res.status(400).send('המידע שנשלח לא תקין');
+            }
+
+            const newRecipe = new Recipe({
+                Name, UserId, CategoryId, Img, Duration, Difficulty, Description, Ingrident, Instructions
+            });
+
+            await newRecipe.save();
+            res.json(newRecipe);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
-
-        if (!Name || !UserId || !CategoryId || !Img || !Duration || !Difficulty || !Description || !Ingrident || !Instructions) {
-            // לא נשלח מידע
-            res.status(400)
-            return res.send('המידע שנשלח לא תקין')
-        };
-
-        const Id = recipees[recipees.length - 1].Id + 1;
-        const newRecipe = {
-            Id, Name, UserId, CategoryId, Img, Duration, Difficulty, Description,
-            Ingrident, Instructions
-        };
-        recipees.push(newRecipe)
-        localStorage.setItem('recipe', JSON.stringify(recipees))
-
-        res.send(newRecipe);
     },
 
-    EditRecipy: (req, res) => {
-        const { Id,
-            Name, UserId, CategoryId, Img, Duration, Difficulty, Description,
-            Ingrident, Instructions } = req.body;
-        let recipees = JSON.parse(localStorage.getItem('recipe') | [])
-        if (!recipees.length) {
-            localStorage.setItem('recipe', JSON.stringify(recipe))
-            recipees = recipe;
-        }
+    EditRecipy: async (req, res) => {
+        try {
+            const { Id, Name, UserId, CategoryId, Img, Duration, Difficulty, Description, Ingrident, Instructions } = req.body;
 
-        if (!Id || !Name || !UserId || !CategoryId || !Img || !Duration || !Difficulty || !Description || !Ingrident || !Instructions) {
-            // לא נשלח מידע
-            res.status(400)
-            return res.send('המידע שנשלח לא תקין')
-        };
-        const foundIndex = recipees.findIndex(x => x.Id == Id);
-        if (foundIndex < 0) {
-            res.status(400)
-            res.send('לא נמצא מתכון מתאים');
+            if (!Id || !Name || !UserId || !CategoryId || !Img || !Duration || !Difficulty || !Description || !Ingrident || !Instructions) {
+                return res.status(400).send('המידע שנשלח לא תקין');
+            }
+
+            const updatedRecipe = await Recipe.findByIdAndUpdate(
+                Id,
+                { Name, UserId, CategoryId, Img, Duration, Difficulty, Description, Ingrident, Instructions },
+                { new: true }
+            );
+
+            if (!updatedRecipe) {
+                return res.status(400).send('לא נמצא מתכון מתאים');
+            }
+
+            res.json(updatedRecipe);
+        } catch (err) {
+            res.status(500).json({ error: err.message });
         }
-        const updateRecipe = {
-            ...recipees[foundIndex],
-            Name, CategoryId, Img, Duration, Difficulty, Description,
-            Ingrident, Instructions
-        };
-        recipees[foundIndex] = updateRecipe;
-        localStorage.setItem('recipe', JSON.stringify(recipees))
-        return res.send(updateRecipe);
-    },
-    Delete: (req, res) => {
-        const { Id } = req.params;
-        let recipees = JSON.parse(localStorage.getItem('recipe') | [])
-        if (!recipees.length) {
-            localStorage.setItem('recipe', JSON.stringify(recipe))
-            recipees = recipe;
-        }
-        recipees = recipees.filter(x => x.Id != Id);
-        localStorage.setItem('recipe', JSON.stringify(recipees))
-        res.send('ok');
     },
 
+    Delete: async (req, res) => {
+        try {
+            const { Id } = req.params;
 
+            const deletedRecipe = await Recipe.findByIdAndDelete(Id);
+            if (!deletedRecipe) {
+                return res.status(400).send('לא נמצא מתכון למחיקה');
+            }
 
-}
+            res.send('ok');
+        } catch (err) {
+            res.status(500).json({ error: err.message });
+        }
+    }
+};
 
 module.exports = recipeServer;

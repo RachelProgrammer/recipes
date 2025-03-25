@@ -1,67 +1,59 @@
-const bay = require('../localStorage/bay')
-var LocalStorage = require('node-localstorage').LocalStorage;
-
-localStorage = new LocalStorage('./scratch');
-
-
+const Bay = require('../models/bay');
 
 const BayService = {
-    GetMaList: (req, res) => {
-        const { UserId } = req.params;
-        let bayList = JSON.parse(localStorage.getItem('bay') | [])
-        if (!bayList.length) {
-            localStorage.setItem('bay', JSON.stringify(bay))
-            bayList = bay;
+    GetMaList: async (req, res) => {
+        try {
+            const { UserId } = req.params;
+            const myList = await Bay.find({ UserId });
+
+            if (!myList.length) {
+                return res.status(400).send('לא נמצאו נתונים');
+            }
+
+            res.send(myList);
+        } catch (error) {
+            res.status(500).send('שגיאה בשרת');
         }
-        let myList = bayList.filter(x => x.UserId == UserId);
-        if (!myList.length) {
-            res.status(400);
-            return res.send('לא נמצאו נתונים')
-        }
-        res.send(myList);
     },
 
-    AddToList: (req, res) => {
-        const { Name, UserId, Count } = req.body;
-        let bayList = JSON.parse(localStorage.getItem('bay') | [])
-        if (!bayList.length) {
-            localStorage.setItem('bay', JSON.stringify(bay))
-            bayList = bay;
-        }
-        if (!Name || !UserId || !Count) {
-            // לא נשלח מידע
-            res.status(400)
-            return res.send('לא נשלח שם מוצר או כמות תקינה או שם משתמש')
-        };
-        console.log(bayList);
-        const foundIndex = bayList.findIndex(x => x.Name == Name && x.UserId == UserId);
-        if (foundIndex >= 0) {
-            bayList[foundIndex].Count += Count;
-            localStorage.setItem('bay', JSON.stringify(bayList))
-            return res.send(bayList[foundIndex]);
-        }
-        else {
-            const Id = bayList[bayList.length - 1].Id + 1;
-            const newBay = { Name, Id, UserId, Count };
-            bayList.push(newBay)
-            localStorage.setItem('bay', JSON.stringify(bayList))
-            res.send(newBay);
-        }
+    AddToList: async (req, res) => {
+        try {
+            const { Name, UserId, Count } = req.body;
 
+            if (!Name || !UserId || !Count) {
+                return res.status(400).send('לא נשלח שם מוצר או כמות תקינה או שם משתמש');
+            }
 
-    },
-    Delete: (req, res) => {
-        const { Id } = req.params;
-        let bayList = JSON.parse(localStorage.getItem('bay') | [])
-        if (!bayList.length) {
-            localStorage.setItem('bay', JSON.stringify(bay))
-            bayList = bay;
+            let existingItem = await Bay.findOne({ Name, UserId });
+
+            if (existingItem) {
+                existingItem.Count += Count;
+                await existingItem.save();
+                return res.send(existingItem);
+            } else {
+                const newBay = new Bay({ Name, UserId, Count });
+                await newBay.save();
+                res.send(newBay);
+            }
+        } catch (error) {
+            res.status(500).send('שגיאה בשרת');
         }
-        bayList = bayList.filter(x => x.Id != Id);
-        console.log(bayList,Id);
-        localStorage.setItem('bay', JSON.stringify(bayList))
-        res.send('ok')
     },
-}
+
+    Delete: async (req, res) => {
+        try {
+            const { Id } = req.params;
+            const deleted = await Bay.findByIdAndDelete(Id);
+
+            if (!deleted) {
+                return res.status(400).send('לא נמצא פריט למחיקה');
+            }
+
+            res.send('ok');
+        } catch (error) {
+            res.status(500).send('שגיאה בשרת');
+        }
+    }
+};
 
 module.exports = BayService;
