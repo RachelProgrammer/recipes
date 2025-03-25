@@ -23,5 +23,11 @@ export const he = {
         "type": "סוג",
         "ingredient_name": "שם",
         "add_ingredient": "הוסף רכיב",
+    },
+    "categories": {
+        "add_category": "הוסף קטגוריה",
+        "add": "הוסף",
+        "cancel": "בטל",
+
     }
 }
