@@ -7,7 +7,7 @@ const recipe = require('./recipe');
 const category = require('./category');
 
 route.use('/bay', bay);
-route.use('/user', user);
+route.use('/auth', user);
 route.use('/recipe', recipe)
 route.use('/category', category)
 
