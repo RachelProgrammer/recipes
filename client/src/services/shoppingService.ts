@@ -1,24 +1,24 @@
 import axios from "./axios";
+import { DtoShoppingBag } from "./DTOs";
 
-// services/shoppingService.ts
-export async function fetchShoppingBagAPI() {
-    const response = await fetch("/api/shopping-bag");
-    if (!response.ok) throw new Error("Failed to fetch shopping bag");
-    return await response.json();
+const SHOPPING_BAG = "shoppingBag";
+
+export async function fetchShoppingListAPI(): Promise<DtoShoppingBag> {
+    const res = await axios.get<DtoShoppingBag>(SHOPPING_BAG);
+    return res.data;
 }
 
-export async function addProductAPI(product: any) {
-    const response = await fetch("/api/shopping-bag", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(product),
-    });
-    if (!response.ok) throw new Error("Failed to add product");
+export async function addProductAPI(name: string, recipeId: string): Promise<any> {
+    const res = await axios.post<any>(SHOPPING_BAG, { name, recipeId });
+    return res.data;
 }
 
-export async function removeProductAPI(productId: any) {
-    const response = await fetch(`/api/shopping-bag/${productId}`, {
-        method: "DELETE",
-    });
-    if (!response.ok) throw new Error("Failed to remove product");
+export async function deleteCartAPI(): Promise<any> {
+    const res = await axios.delete<any>(SHOPPING_BAG);
+    return res.data;
+}
+
+export async function deleteProductAPI(productId: string): Promise<any> {
+    const res = await axios.delete<any>(`${SHOPPING_BAG}/${productId}`);
+    return res.data;
 }

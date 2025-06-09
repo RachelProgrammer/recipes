@@ -1,26 +1,18 @@
-// store/CategoryStore.ts
 import { makeAutoObservable, runInAction } from "mobx";
-import { fetchRecipesAPI, getRecipeAPI } from "../services/recipeService"; // API function
-import { Category, Recipe } from "../services/DTOs";
+import { addRecipeAPI, deleteRecipeAPI, editRecipeAPI, fetchRecipesAPI, getRecipeAPI } from "../services/recipeService"; // API function
+import { Recipe } from "../services/DTOs";
+import { RootStore } from "./store";
 
-export class RecipeStore {
-    //         await removeProductAPI(productId);
-    //         this.fetchCategory(); // Refresh list after removing
-    //     } catch (err) {
-    //         console.error("Failed to remove product:", err);
-    //     }
-    // }
-
-    recipes: Recipe[] = []; // Observable state
+export default class RecipeStore {
+    recipes: Recipe[] = [];
     isLoading = false;
     error = null;
 
-    constructor() {
+    constructor(readonly owner: RootStore) {
         makeAutoObservable(this);
     }
 
-    // Action: Fetch shopping bag from API and update state
-    async fetchCategory() {
+    async fetchAll() {
         this.isLoading = true;
         this.error = null;
         try {
@@ -45,28 +37,38 @@ export class RecipeStore {
             return undefined;
         }
     }
-    // Action: Add a product (simulate an API request and update state)
-    // async addProduct(product) {
-    //     try {
-    //         // Assume `addProductAPI` sends data to backend
-    //         await addProductAPI(product);
-    //         this.fetchCategory(); // Refresh list after adding
-    //     } catch (err) {
-    //         console.error("Failed to add product:", err);
-    //     }
-    // }
 
-    // // Action: Remove a product
-    // async removeProduct(productId) {
-    //     try {
-    //         // Assume `removeProductAPI` deletes item from backend
-    //         await removeProductAPI(productId);
-    //         this.fetchCategory(); // Refresh list after removing
-    //     } catch (err) {
-    //         console.error("Failed to remove product:", err);
-    //     }
-    // }
+    async addRecipe(recipe: Recipe): Promise<Recipe | undefined> {
+        try {
+            const res = await addRecipeAPI(recipe);
+            await this.fetchAll();
+            return res;
+        } catch (err: any) {
+            console.error("Failed to add recipe");
+            return undefined;
+        }
+    }
+
+    async editRecipe(recipe: Recipe): Promise<Recipe | undefined> {
+        try {
+            const res = await editRecipeAPI(recipe);
+            await this.fetchAll();
+            return res;
+        } catch (err: any) {
+            console.error("Failed to edit recipe");
+            return undefined;
+        }
+    }
+
+
+    async deleteRecipe(recipeId: string): Promise<void> {
+        try {
+            const res = await deleteRecipeAPI(recipeId);
+            await this.fetchAll();
+            return res;
+        } catch (err: any) {
+            console.error("Failed to edit recipe");
+            return undefined;
+        }
+    }
 }
-
-// Export store instance
-export const recipeStore = new RecipeStore();

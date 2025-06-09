@@ -1,35 +1,27 @@
 import './App.css';
-import { Route, Routes } from 'react-router-dom';
-import LoginForm from './user/loginForm';
-import SignupForm from './user/signupForm';
-import DisplayRecipe from './recipe/displayRecipe';
-import GetAllRecipes from './recipe/getAllRecipes';
-import CategoriesPage from './category/categoriesPage'
-import { AddOrEditRecipe } from './recipe/addRecipe';
-import GetAllShoppint from './shoppingBag/getAllShoping';
-import EditShoppingList from './shoppingBag/editShoppingList';
+import "bootstrap/dist/css/bootstrap.rtl.min.css";
 import { useStore } from './store/storeContext';
 import { Fragment } from 'react/jsx-runtime';
-import RecipePage from './recipe/recipePage';
-import CategoryPage from './category/categoryPage';
-import Header from './components/header';
+import AppHeader from './components/appHeader';
 import { AppRoutes } from './components/appRoutes';
 import { useEffect } from 'react';
+import { useLang } from './resources/langContext';
+import { ToastContainer } from 'react-toastify';
 
 export const App = () => {
   const store = useStore();
+  const { dir } = useLang();
 
   useEffect(() => {
-    store.auth.autoLogin();
-  }, [])
+    store.auth.autoSignIn();
+  }, [store.auth])
 
   return (
     <Fragment>
-      <Header />
+      <ToastContainer position={dir === "rtl" ? "top-left" : "top-right"} rtl={dir === "rtl"} style={{ marginTop: 100 }} autoClose={3000} closeOnClick={true} />
+      <AppHeader />
       <div className="body">
-        <div className="app-container">
-          <AppRoutes />
-        </div>
+        <AppRoutes />
       </div>
     </Fragment>
   );

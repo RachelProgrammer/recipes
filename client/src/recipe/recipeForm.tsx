@@ -1,142 +1,147 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { observer } from "mobx-react-lite";
+import { useState } from "react";
+import { Form } from "react-bootstrap";
+import { MdDelete } from "react-icons/md";
+import { Ingrident, Recipe } from "../services/DTOs";
 import { useStore } from "../store/storeContext";
-import { Recipe } from "../services/DTOs";
-import { he } from "../resources/he";
+import { useLang } from "../resources/langContext";
 
-
-const r = he.recipes;
-// import { fetchRecipeById, saveRecipe } from "../services/recipeService";
-
-const RecipeForm: React.FC<{ recipeId?: string }> = ({ recipeId }) => {
-    const navigate = useNavigate()
+export const RecipeForm: React.FC<{ recipe?: Recipe, setRecipe: React.Dispatch<React.SetStateAction<Recipe | undefined>> }> = observer(({ recipe, setRecipe }) => {
     const store = useStore();
-    const user = store.auth.user;
+    const { r } = useLang();
 
-    const [recipe, setRecipe] = useState<Recipe | undefined>();
+    const handleSet = <K extends keyof Recipe>(key: K, value: Recipe[K]) =>
+        setRecipe(prev => ({ ...prev, [key]: value }) as Recipe);
 
-
-    useEffect(() => {
-        if (recipeId)
-            store.recipe.getById(recipeId).then(setRecipe);
-    }, [])
-
-    const handleSubmit = async (e: any) => {
-        e.preventDefault();
-        // await saveRecipe(recipe);
-        navigate("/recipe/view/" + recipe?.Id); // Redirect after save
-    };
-
-    const handleSet = (key: keyof Recipe, value: any) => { // TODO typeof value
-        setRecipe({ ...recipe, [key]: value as any } as Recipe);
+    const handleIngredientChange = <K extends keyof Ingrident>(index: number, key: K, value: string) => {
+        const updatedIngredients = [...recipe?.ingredients ?? []];
+        updatedIngredients[index][key] = value;
+        handleSet("ingredients", updatedIngredients);
     }
 
-    const handleIngredientChange = (index: number, key: any, value: string) => {
-        const updatedIngredients = [...recipe?.Ingrident ?? []];
-        (updatedIngredients as any)[index][key] = value;
-        handleSet("Ingrident", updatedIngredients);
-
-    }
-
-
-    const handleInstructionChange = (index: any, value: any) => {
-        const updatedInstructions = [...recipe?.Instructions ?? []];
+    const handleInstructionChange = (index: number, value: string) => {
+        const updatedInstructions = [...recipe?.instructions ?? []];
         updatedInstructions[index] = value;
-        handleSet("Instructions", updatedInstructions);
+        handleSet("instructions", updatedInstructions);
     };
 
-    ; const addInstructionField = () => {
-        handleSet("Instructions", [...recipe?.Instructions ?? [], '']);
-    };
+    const addInstructionField = () =>
+        handleSet("instructions", [...recipe?.instructions ?? [], '']);
 
     const removeInstructionField = (index: number) => {
-        const updatedInstructions = [...recipe?.Instructions ?? []];
+        const updatedInstructions = [...recipe?.instructions ?? []];
         updatedInstructions.splice(index, 1);
-        handleSet("Instructions", updatedInstructions);
+        handleSet("instructions", updatedInstructions);
     };
 
     const addIngredientField = () => {
-        const updatedIngredients = [...recipe?.Ingrident ?? [], { quantity: '', type: '', name: '' }];
-        handleSet("Ingrident", updatedIngredients);
+        const updatedIngredients = [...recipe?.ingredients ?? [], { description: '', name: '' }];
+        handleSet("ingredients", updatedIngredients);
     };
 
     const removeIngredientField = (index: number) => {
-        const updatedIngredients = [...recipe?.Ingrident ?? []];
+        const updatedIngredients = [...recipe?.ingredients ?? []];
         updatedIngredients.splice(index, 1);
-        handleSet("Ingrident", updatedIngredients);
+        handleSet("ingredients", updatedIngredients);
     };
 
+    const [imageSrc, setImageSrc] = useState<string>("");
 
+    const onImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setImageSrc(event.target.value);
+        const file = event.target.files?.[0];
+        if (!file) return;
 
-    if (!!recipeId && !recipe) {
-        return (
-            <div>loading...</div>
-        )
-    }
-
+        const reader = new FileReader();
+        reader.onloadend = () => {
+            const base64 = reader.result as string;
+            handleSet("image", base64);
+        };
+        reader.readAsDataURL(file);
+    };
 
     return (
-        <div style={{width: "40%", height: "100%"}}>
-            <h1 style={{ color: "rgb(232,100,100)", fontWeight: "bold", fontSize: "50px", textAlign: "center" }}>// New Recipe //</h1>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexFlow: "column", "rowGap": "5px", height: "calc(100% - 60px)", overflow: "auto"}}>
-                <input value={recipe?.Name} onChange={(e) => handleSet("Name", e.target.value)} className="addR" placeholder={r.name} />
-                <input value={recipe?.Difficulty} onChange={(e) => handleSet("Difficulty", e.target.value)} placeholder={r.difficulty} className="addR" />
-                <input value={recipe?.Duration} onChange={(e) => handleSet("Duration", e.target.value)} placeholder={r.duration} className="addR" />
-                <input value={recipe?.Description} onChange={(e) => handleSet("Description", e.target.value)} placeholder={r.description} className="addR" />
-                <input value={recipe?.CategoryId} onChange={(e) => handleSet("CategoryId", e.target.value)} placeholder="CategoryId" className="addR" />
-                <input value={recipe?.Img} onChange={(e) => handleSet("Img", e.target.value)} placeholder={r.image} className="addR" />
-
-                <label style={{fontWeight: "bold"}}>{r.instructions}</label>
-                <div>
-                    {recipe?.Instructions?.map((instruction, index) => (
-                        <div key={index}>
-                            <input
-                                type="text"
-                                value={instruction}
-                                onChange={(e) => handleInstructionChange(index, e.target.value)}
-                                className="addR"
-                            />
-                            <button className="btn btn-danger" type="button" onClick={() => removeInstructionField(index)}>
-                                {r.remove}
-                            </button>
-                        </div>
-                    ))}
-                    <button className="btn btn-danger" type="button" onClick={addInstructionField}>
-                        {r.add_step}
-                    </button>
+        <div className="p-1">
+            <Form className="flex flex-col gap-y-2">
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap" >{r.recipes.name}</Form.Label>
+                    <Form.Control value={recipe?.title} onChange={(e) => handleSet("title", e.target.value)} className="!w-11/12" />
+                </div>
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap" >{r.recipes.difficulty}</Form.Label>
+                    <div className="!w-11/12 flex gap-x-1">
+                        <Form.Label className="text-red-500">{r.recipes.easy}</Form.Label>
+                        <Form.Range color="#b91c1c" className="fill-red-700 text-red-700" max={3} min={1} step={1} value={recipe?.difficulty} onChange={(e) => handleSet("difficulty", +e.target.value)} />
+                        <Form.Label className="text-red-500">{r.recipes.complex}</Form.Label>
+                    </div>
+                </div>
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap" >{r.recipes.description}</Form.Label>
+                    <Form.Control value={recipe?.description} onChange={(e) => handleSet("description", e.target.value)} className="!w-11/12" />
+                </div>
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap" >{r.recipes.category}</Form.Label>
+                    <Form.Select className="!w-11/12" aria-label="Default select example" onClick={() => store.category.fetchAll()} onChange={(e) => handleSet("categoryId", e.target.value)}>
+                        {store.category.categories.map(c => (
+                            <option key={c._id} value={c._id}>{c.name}</option>
+                        ))}
+                    </Form.Select>
                 </div>
 
-                <label>{r.ingredients}</label>
-                {recipe?.Ingrident?.map((ingredient, index) => (
-                    <div key={index} style={{display: "flex", "justifyContent": "space-between"}}>
-                        <input
-                            type="number"
-                            value={ingredient.quantity}
-                            placeholder={r.quantity}
-                            onChange={(e) => handleIngredientChange(index, 'quantity', e.target.value)}
-                            className="addR"
-                        />
-                        <input
-                            type="text"
-                            value={ingredient.name}
-                            placeholder={r.ingredient_name}
-                            onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
-                            className="addR"
-                        />
-                        <button className="btn btn-danger" type="button" onClick={() => removeIngredientField(index)}>
-                            {r.remove}
-                        </button>
-                    </div>
-                ))}
-                <button className="btn btn-danger" type="button" onClick={addIngredientField}>
-                    {r.add_ingredient}
-                </button>
-                <br />
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap" >{r.recipes.image}</Form.Label>
+                    <Form.Control value={imageSrc} type="file" onChange={onImageSelect} placeholder={r.recipes.image} className="!w-11/12" />
+                </div>
 
-                <input type="submit" style={{ backgroundColor: "rgb(232,100,100)", borderRadius: "7px", borderColor: "white" }} />
-            </form>
+                <div className="bg-gray-100 rounded-lg p-2">
+                    <Form.Label className="text-2xl font-bold">{r.recipes.instructions}</Form.Label>
+                    <div className="flex flex-col gap-y-2 p-2">
+                        {recipe?.instructions?.map((instruction, index) => (
+                            <div key={index} className="w-full flex gap-x-2px">
+                                <Form.Control type="text" value={instruction} onChange={(e) => handleInstructionChange(index, e.target.value)}
+                                    className="w-full bg-transparent" as="textarea" />
+                                <button className="btn p-0 hover:fill-red-400 fill-red-600 focus:border-none focus:shadow-none shadow-none border-none" type="button" onClick={() => removeInstructionField(index)}>
+                                    <MdDelete className="fill-inherit " />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="btn btn-danger" type="button" onClick={addInstructionField}>
+                        {r.recipes.add_step}
+                    </button>
+                </div>
+                <div className="bg-gray-100 rounded-lg p-2">
+                    <label className="text-2xl font-bold">{r.recipes.ingredients}</label>
+                    <div className="flex flex-col gap-y-2 p-2">
+                        {recipe?.ingredients?.map((ingredient, index) => (
+                            <div key={index} className="flex justify-between gap-x-2">
+                                <div className="w-full flex gap-x-2 ">
+                                    <Form.Control
+                                        type="text"
+                                        value={ingredient.name}
+                                        placeholder={r.recipes.ingredient_name}
+                                        onChange={(e) => handleIngredientChange(index, 'name', e.target.value)}
+                                        className="text-ellipsis w-1/3 bg-transparent"
+                                    />
+                                    <Form.Control
+                                        type="text"
+                                        value={ingredient.description}
+                                        placeholder={r.recipes.ingredient_quantity}
+                                        onChange={(e) => handleIngredientChange(index, 'description', e.target.value)}
+                                        className="text-ellipsis w-2/3 bg-transparent"
+                                    />
+                                </div>
+                                <button className="btn p-0 hover:fill-red-400 fill-red-600 focus:border-none focus:shadow-none shadow-none border-none" type="button" onClick={() => removeIngredientField(index)}>
+                                    <MdDelete className="fill-inherit " />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                    <button className="btn btn-danger" type="button" onClick={addIngredientField}>
+                        {r.recipes.add_ingredient}
+                    </button>
+                </div>
+            </Form>
         </div>
     );
-};
-
-export default RecipeForm;
+});

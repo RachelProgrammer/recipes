@@ -1,62 +1,67 @@
 import { makeAutoObservable } from "mobx";
-import { User } from "../services/DTOs";
-import { login, signup } from "../services/authService";
+import { DtoAuth, DtoSignin, DtoSignup, DtoUser } from "../services/DTOs";
+import { signInAPI, signupAPI as signUp } from "../services/authService";
+import { RootStore } from "./store";
 
-export class AuthStore {
-    user?: User;
+export default class AuthStore {
+    user?: DtoUser;
     token = localStorage.getItem("authToken");
     loading = true;
 
-    constructor() {
+    constructor(readonly owner: RootStore) {
         makeAutoObservable(this);
-        this.autoLogin();
+        this.autoSignIn();
     }
 
-    async login(username: string, password: string) {
+    async signIn(dtoUser: DtoSignin) {
         try {
-            const data = await login({ Username: `${username}`, Password: `${password}` });
-            this.setUser(data.user, data.token);
+            const dtoAuth = await signInAPI(dtoUser);
+            this.initializeUser(dtoAuth);
         } catch (error: any) {
-            console.error("Login Failed:", error.response?.data);
+            console.error("Signin Failed:", error.response?.data);
+            throw error;
         }
     }
 
-    async autoLogin() {
+    async autoSignIn() {
         if (!this.token) {
             this.loading = false;
             return;
         }
 
         try {
-            const data = await login({ token: this.token });
-            this.setUser(data.user, data.token);
+            const dtoAuth = await signInAPI({ token: this.token });
+            this.initializeUser(dtoAuth);
         } catch {
-            this.logout();
+            this.signOut();
         } finally {
             this.loading = false;
         }
     }
 
-    setUser(user: any, token: string) {
-        this.user = user;
-        this.token = token;
-        localStorage.setItem("authToken", token);
+    initializeUser(data: DtoAuth) {
+        this.user = data.user;
+        this.token = data.token;
+        localStorage.setItem("authToken", data.token);
+
+        this.owner.category.fetchAll();
+        this.owner.recipe.fetchAll();
+        this.owner.shoppingBag.fetchAll();
     }
 
-    async signup(userData: User) {
+    async signUp(userData: DtoSignup) {
         try {
-            const data = await signup(userData);
-            this.setUser(data.user, data.token); // Default to not remembering
+            const dtoAuth = await signUp(userData);
+            this.initializeUser(dtoAuth);
         } catch (error: any) {
             console.error("Signup Failed:", error.response?.data);
+            throw error;
         }
     }
 
-    logout() {
+    signOut() {
         this.user = undefined;
         this.token = null;
         localStorage.removeItem("authToken");
     }
 }
-
-export const authStore = new AuthStore();

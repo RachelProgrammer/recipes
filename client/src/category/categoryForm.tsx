@@ -1,63 +1,61 @@
-import { useEffect, useState } from "react";
-import { useStore } from "../store/storeContext";
-import { Category } from "../services/DTOs";
-import * as yup from "yup";
-import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useNavigate } from "react-router";
+import React from "react";
+import { Button, Form, Modal } from "react-bootstrap";
+import { useForm } from "react-hook-form";
+import * as yup from "yup";
+import { useStore } from "../store/storeContext";
+import { DtoCategory } from "../services/DTOs";
+import { useLang } from "../resources/langContext";
 
-
-const schema = yup
-    .object({
-        Name: yup.string().required(),
-    })
-    .required();
-
-const CategoryForm: React.FC<{categoryId?: string}> = ({categoryId}) => {
+export const CategoryFormModal: React.FC<{ show: boolean, onHide: () => void, existingCategory?: DtoCategory }> = ({ show, onHide, existingCategory }) => {
     const store = useStore();
-    const navigate = useNavigate();
-    const [category, setCategory] = useState<Category>();
+
+    const { r, dir } = useLang();
+
+    const schema = yup
+        .object({
+            title: yup.string().min(3, r.categories.name_too_short).max(30, r.categories.name_too_long).required(r.categories.name_required),
+        })
+        .required();
 
     const {
         register,
         handleSubmit,
         formState: { errors },
-        control,
     } = useForm({
         resolver: yupResolver(schema),
-        // values: category,
     });
 
-    useEffect(() => {
-        if (!!categoryId)
-            store.category.getById(categoryId).then(setCategory);
-    }, [])
 
 
-    if (!category) {
-        return (
-            <div>loading...</div>
-        )
-    }
-
-    const onSubmit = async (data: {Name: string}) => {
-        const category = await store.category.add(data.Name);
-        navigate(`/category/view/${category.Id}`);
+    const onSubmit = async (data: { title: string }) => {
+        let category;
+        if (existingCategory)
+            category = await store.category.edit(existingCategory._id, data.title);
+        else
+            category = await store.category.add(data.title);
+        if (category)
+            onHide();
     }
 
     return (
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-            <div style={{ textAlign: 'center' }}>
-                <h1 style={{ color: "rgb(232,100,100)", fontWeight: "bold", fontSize: "50px" }}>Name Of Category</h1>
-                <form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 'fit-content' }}>
-                    <input {...register("Name")} className="addR" placeholder="Name" />
-                    <p>{errors.Name?.message}</p>
-                    <input type="submit" style={{ backgroundColor: "rgb(232,100,100)", borderRadius: "7px", borderColor: "white" }} />
-                </form>
-            </div>
-        </div>
-    )
+
+        <Modal show={show} onHide={onHide} size="lg" aria-labelledby="contained-modal-title-vcenter" centered dir={dir}>
+            <Modal.Header closeButton>
+                <Modal.Title id="contained-modal-title-vcenter">
+                    {existingCategory ? r.categories.edit_category : r.categories.add_category}
+                </Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Form onSubmit={handleSubmit(onSubmit)} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 'fit-content' }}>
+                    <Form.Control {...register("title")} defaultValue={existingCategory?.name} className="addR" placeholder={r.categories.insert_cateogry_name} />
+                    <p className="text-sm text-red-600 !m-0">{errors.title?.message}</p>
+                </Form>
+            </Modal.Body>
+            <Modal.Footer>
+                <Button onClick={() => onHide()} className="btn btn-secondary">{r.categories.cancel}</Button>
+                <Button type="submit" className="btn btn-danger" onClick={handleSubmit(onSubmit)}>{r.categories.save}</Button>
+            </Modal.Footer>
+        </Modal>
+    );
 }
-
-
-export default CategoryForm;

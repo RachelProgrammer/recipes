@@ -1,21 +1,14 @@
 import axios from "./axios";
-import { User } from "./DTOs";
+import { DtoAuth, DtoSignin, DtoSignup } from "./DTOs";
 
-type DtoAuth = {
-    user: User;
-    token: string;
-}
+const AUTH = "auth";
 
-export async function login(data: any): Promise<DtoAuth> {
-    const res = await axios.post<DtoAuth>(`auth/login`, data);
+export async function signInAPI(data: DtoSignin): Promise<DtoAuth> {
+    const res = await axios.post<DtoAuth>(`${AUTH}/signin`, data);
     return res.data;
 }
 
-export async function signup(user: User): Promise<DtoAuth> {
-    const res = await axios.post<DtoAuth>(`auth/signup`, user);
+export async function signupAPI(data: DtoSignup): Promise<DtoAuth> {
+    const res = await axios.post<DtoAuth>(`${AUTH}/signup`, data);
     return res.data;
-}
-
-export async function logout() {
-    // await axios.post(`${API_BASE_URL}/logout`);
 }

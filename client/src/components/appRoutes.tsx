@@ -1,56 +1,44 @@
-import { Route, Routes } from "react-router"
-import { Fragment } from "react/jsx-runtime"
-import { AddOrEditRecipe } from "../recipe/addRecipe"
-import GetAllShoppint from "../shoppingBag/getAllShoping"
-import EditShoppingList from "../shoppingBag/editShoppingList"
-import CategoryPage from "../category/categoryPage"
-import CategoriesPage from "../category/categoriesPage"
-import RecipePage from "../recipe/recipePage"
-import GetAllRecipes from "../recipe/getAllRecipes"
-import SignupForm from "../user/signupForm"
-import LoginForm from "../user/loginForm"
-import { useStore } from "../store/storeContext"
+import { Route, Routes, useLocation, useNavigate } from "react-router"
 import { observer } from "mobx-react-lite"
-
-
+import CategoriesGallery from "../category/categoriesGallery"
+import RecipePage from "../recipe/recipePage"
+import RecipeGallery from "../recipe/recipeGallery"
+import ShoppingList from "../shoppingBag/shoppingList"
+import { useStore } from "../store/storeContext"
+import { HomePage } from "./homePage"
+import { useEffect } from "react"
+import SignInForm from "../user/signInForm"
+import SignUpForm from "../user/signUpForm"
 
 export const AppRoutes = observer(() => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    useEffect(() => {
+        if (location.pathname === "/")
+            navigate("/homepage")
+    }, [location, navigate])
 
     const store = useStore();
     const user = store.auth.user;
 
     return (
-        <Fragment>
-            <Routes>
-                {/* <Route path="/" element={<HomePage />} />
-                <Route path="/homepage" element={<HomePage />} /> */}
-                <Route path="/login" element={<LoginForm />} />
-                <Route path="/signup" element={<SignupForm />} />
-                {/* <Route path="/displayRecipe" element={<Recipe />} /> */}
+        <Routes>
+            <Route path="/homepage" element={<HomePage />} />
+            <Route path="/signin" element={<SignInForm />} />
+            <Route path="/signup" element={<SignUpForm />} />
 
-                {/* recipes */}
-                {user && <Route path="/recipes" element={<GetAllRecipes />} />}
-                {user && <Route path="/recipe/add" element={<RecipePage />} />}
-                {user && <Route path="/recipe/view/:recipeId" element={<RecipePage />} />}
-                {user && <Route path="/recipe/edit/:recipeId" element={<RecipePage />} />}
+            {/* recipes */}
+            {user && <Route path="/recipes" element={<RecipeGallery />} />}
+            {user && <Route path="/recipes/:recipeId/view" element={<RecipePage isEditMode={false} />} />}
+            {user && <Route path="/recipes/:recipeId/edit" element={<RecipePage isEditMode={true} />} />}
 
-                {/* categories */}
-                {user && <Route path="/categories" element={<CategoriesPage />} />}
-                {user && <Route path="/category/add" element={<CategoryPage />} />}
-                {user && <Route path="/category/view/:categoryId" element={<CategoryPage />} />}
-                {user && <Route path="/category/edit/:categoryId" element={<CategoryPage />} />}
+            {/* categories */}
+            {user && <Route path="/categories" element={<CategoriesGallery />} />}
+    
+            {/* shopping bag */}
+            {user && <Route path="/shoppingBag" element={<ShoppingList />} />}
 
-                {/* <Route path="/displayRecipe" element={<Recipe />} /> */}
-                {/* <Route path="/addRecipe" element={<AddOrEditRecipe mode='add' />} /> */}
-                {/* <Route path="/getAllRecipes" element={<GetAllRecipes />} /> */}
-                {/* <Route path="/getAllCategory" element={<GetAllCategory />} />
-                <Route path="/addCategory" element={<AddCategory />} /> */}
-                {/* <Route path="/deleteRecipe" element={<DeleteRecipe />} /> */}
-                {user && <Route path="/edit" element={<AddOrEditRecipe mode='edit' />} />}
-                {user && <Route path="/getAllShoping" element={<GetAllShoppint />} />}
-                {user && <Route path="/editShoppingList" element={<EditShoppingList />} />}
-
-            </Routes>
-        </Fragment>
+        </Routes>
     )
 });

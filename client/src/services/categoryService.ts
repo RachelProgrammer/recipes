@@ -1,24 +1,24 @@
 import axios from "./axios";
-import { Category, Recipe } from "./DTOs";
+import { DtoCategory } from "./DTOs";
 
-const BASE_URL = "category";
+const CATEGORY = "category";
 
-// services/shoppingService.ts
-export async function fetchCategoriesAPI(): Promise<Category[]> {
-    const res = await axios.get<Category[]>(`${BASE_URL}/`);
+export async function fetchCategoriesAPI(): Promise<DtoCategory[]> {
+    const res = await axios.get<DtoCategory[]>(CATEGORY);
     return res.data;
 }
 
-export async function addCategoryAPI(category: Category): Promise<void>{
-    await axios.post(`${BASE_URL}/`, category);
+export async function addCategoryAPI(categoryName: string): Promise<DtoCategory> {
+    const res = await axios.post(CATEGORY, { name: categoryName });
+    return res.data;
 }
 
-export async function removeRecipeAPI(rid: any): Promise<void> {
-    const response = await axios.delete<Recipe>(`/api/shopping-bag/${rid}`,);
+export async function editCategoryAPI(id: string, name: string): Promise<DtoCategory> {
+    const res = await axios.post(`${CATEGORY}/edit/${id}`, { name: name });
+    return res.data;
 }
 
-export async function getCategoryAPI(cid: any): Promise<Category> {
-    const response = await axios.get<Category>(`/api/shopping-bag/${cid}`);
-    return response.data;
+export async function deleteCategoryAPI(id: string): Promise<boolean> {
+    const res = await axios.delete(`${CATEGORY}/delete/${id}`);
+    return res.data;
 }
-
