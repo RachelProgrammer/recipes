@@ -39,7 +39,7 @@ export const en = {
         "edit": "Edit",
         "not_found": "No recipes match the filters",
         "empty": "Your recipe book is empty! Time to fill it with your delicious creations!",
-        "add_item_to_cart": "Add to shopping cart",
+        "add_items_to_cart": "Add all ingredients to shopping cart",
         "delete": "Delete",
         "no_category": "To create a recipe, please add at least one category.",
         "must_have_name": "recipe must have name"

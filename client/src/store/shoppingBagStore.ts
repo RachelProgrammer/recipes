@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from "mobx";
-import { addProductAPI, deleteCartAPI, deleteProductAPI, fetchShoppingListAPI } from "../services/shoppingService"; // API function
+import { addAllItemsToCart, addItemToCart, deleteCartAPI, fetchShoppingListAPI, removeItemFromCart } from "../services/shoppingService";
 import { RootStore } from "./store";
 import { DtoShoppingBagItem } from "../services/DTOs";
 
@@ -29,18 +29,27 @@ export default class ShoppingBagStore {
         }
     }
 
-    async addIngredient(name: string, recipeId: string) {
+    async addAllIngredients(recipeId: string) {
         try {
-            await addProductAPI(name, recipeId);
+            await addAllItemsToCart(recipeId);
             this.fetchAll();
         } catch (err) {
             console.error(err);
         }
     }
 
-    async removeIngredient(itemId: string) {
+    async addIngredient(name: string, recipeId: string) {
         try {
-            await deleteProductAPI(itemId);
+            await addItemToCart(name, recipeId);
+            this.fetchAll();
+        } catch (err) {
+            console.error(err);
+        }
+    }
+
+    async removeIngredient(name: string, recipeId: string) {
+        try {
+            await removeItemFromCart(name, recipeId);
             await this.fetchAll();
         } catch (err) {
             console.error(err);

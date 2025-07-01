@@ -24,11 +24,16 @@ export type DtoUser = {
     email: string;
 }
 
-export type DtoShoppingBagItem = {
-    isBought: boolean
-    name: string
+export type DtoRecipeRef = {
+    count : number;
+    countDesc: string;
+    name: string;
     recipeId: string;
-    _id: string;
+}
+
+export type DtoShoppingBagItem = {
+    name: string
+    refs: DtoRecipeRef[];
 }
 
 export type DtoShoppingBag = {

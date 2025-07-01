@@ -4,7 +4,7 @@ import { useEffect } from "react"
 import Button from 'react-bootstrap/Button';
 import { useStore } from "../store/storeContext"
 import { Card } from "react-bootstrap";
-import { MdDelete, MdPrint } from "react-icons/md";
+import { MdAdd, MdDelete, MdPrint, MdRemove } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { useLang } from "../resources/langContext";
 
@@ -19,21 +19,43 @@ const ShoppingList = observer(() => {
     store.shoppingBag.fetchAll();
   }, [store.shoppingBag])
 
-  const deleteIngredient = (itemId: string) => store.shoppingBag.removeIngredient(itemId);
+  const deleteIngredient = (recipeId: string, name: string) =>
+    store.shoppingBag.removeIngredient(name, recipeId);
+
+  const addIngredient = (recipeId: string, name: string) =>
+    store.shoppingBag.addIngredient(name, recipeId);
+
 
   const clearCart = () => store.shoppingBag.removeAll();
 
   return (
     <div className="h-full w-full flex items-center flex-col">
       <div className="row print:w-full w-1/2 bg-slate-100 rounded-xl">
-        {shoppingList?.map((item) => (
-          <div key={item._id} className="p-3 flex flex-col">
-            <Card key={item._id} className="hover:!bg-slate-100 transition-colors">
-              <Card.Body className="flex flex-row w-full justify-between h-[50px] items-center">
+        {shoppingList?.map((item, idx) => (
+          <div key={idx} className="p-3 flex flex-col">
+            <Card key={idx} className="">
+              <Card.Header>
                 <Card.Title className="!mb-0">{item?.name}</Card.Title>
-                <Button onClick={() => deleteIngredient(item._id)} className="btn-danger h-[30px] cursor-pointer transition-transform duration-700 hover:scale-125 hover:shadow-lg">
-                  <MdDelete />
-                </Button>
+              </Card.Header>
+              <Card.Body className="flex flex-col w-full justify-between items-center">
+                {item.refs?.map(r =>
+                  <Card.Subtitle className="w-full p-[4px] flex flex-row justify-between items-center hover:!bg-slate-100 transition-colors" >
+                    <div className=" flex flex-row gap-x-2">
+                      <span>{r.name}</span>
+                      <span className="text-[#aaa] flex">({
+                        r.count > 1 ? <span className="flex gap-x-1"><span>{r.countDesc}</span> <span>x</span><span>{r.count}</span></span> : r.countDesc
+                      })</span>
+                    </div>
+                    <div className="flex gap-x-2 print:invisible">
+                      <Button onClick={() => addIngredient(r.recipeId, item.name)} className="btn-danger h-[30px] hover:shadow-lg">
+                        <MdAdd />
+                      </Button>
+                      <Button onClick={() => deleteIngredient(r.recipeId, item.name)} className="btn-danger h-[30px] hover:shadow-lg">
+                        <MdRemove />
+                      </Button>
+                    </div>
+                  </Card.Subtitle>
+                )}
               </Card.Body>
             </Card>
           </div>

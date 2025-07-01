@@ -66,7 +66,7 @@ const RecipePage: React.FC<{isEditMode: boolean}> = observer(({isEditMode}) => {
 
     return (
         <div className="recipe bg-gray-200 rounded-xl w-4/5 p-10 flex justify-between flex-col shadow-xl min-h-full h-fit">
-            <DisplayRecipe recipe={recipe} />;
+            <DisplayRecipe recipe={recipe} />
             <EditRecipeModal show={editRecipeModal} onHide={onHideEditRecipeModal} initialRecipe={_.cloneDeep(recipe)} />
             <RecipeActions onEdit={() => setEditRecipeModal(true)} onPrint={() => window.print()} onDelete={() => deleteRecipe(recipe._id)} />
         </div>

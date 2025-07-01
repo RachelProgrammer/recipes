@@ -8,8 +8,19 @@ export async function fetchShoppingListAPI(): Promise<DtoShoppingBag> {
     return res.data;
 }
 
-export async function addProductAPI(name: string, recipeId: string): Promise<any> {
-    const res = await axios.post<any>(SHOPPING_BAG, { name, recipeId });
+
+export async function addAllItemsToCart(recipeId: string): Promise<any> {
+    const res = await axios.post<any>(`${SHOPPING_BAG}/all/${recipeId}`);
+    return res.data;
+}
+
+export async function addItemToCart(name: string, recipeId: string): Promise<any> {
+    const res = await axios.post<any>(`${SHOPPING_BAG}/inc`, { name, recipeId });
+    return res.data;
+}
+
+export async function removeItemFromCart(name: string, recipeId: string): Promise<any> {
+    const res = await axios.post<any>(`${SHOPPING_BAG}/dec`, { name, recipeId });
     return res.data;
 }
 
