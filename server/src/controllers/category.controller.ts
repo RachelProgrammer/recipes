@@ -1,6 +1,7 @@
 import { Request, RequestHandler, Response } from 'express';
 import Category from '../models/category.model'; // Import the Category model
 import { assert } from 'console';
+import Recipe from '../models/recipe.model';
 import { AuthenticatedRequest } from '../middleware/auth.middleware';
 import mongoose from 'mongoose';
 

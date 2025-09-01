@@ -8,7 +8,7 @@ import { useStore } from "../store/storeContext"
 import { HomePage } from "./homePage"
 import { useEffect } from "react"
 import SignInForm from "../user/signInForm"
-import SignUpForm from "../user/signUpForm"
+import SignUpForm from "../user/signupForm"
 
 export const AppRoutes = observer(() => {
     const location = useLocation();

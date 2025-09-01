@@ -4,7 +4,7 @@ import { Modal } from 'react-bootstrap';
 import Button from 'react-bootstrap/Button';
 import { Recipe } from '../services/DTOs';
 import { useStore } from '../store/storeContext';
-import { RecipeForm } from './recipeForm';
+import {RecipeForm}   from './recipeForm';
 import { useLang } from '../resources/langContext';
 
 

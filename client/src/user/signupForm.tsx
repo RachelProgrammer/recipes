@@ -14,7 +14,7 @@ import InputGroupText from "react-bootstrap/esm/InputGroupText";
 import { Link } from "react-router-dom";
 
 
-export default function SignUpForm() {
+export default function SignupForm() {
   const navig = useNavigate();
   const store = useStore();
 

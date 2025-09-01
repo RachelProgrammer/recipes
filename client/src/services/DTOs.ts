@@ -12,7 +12,8 @@ export type Recipe = {
 };
 export type Ingrident = {
     description: string,
-    name: string
+    name: string,
+    amount:number
 };
 
 export type DtoUser = {

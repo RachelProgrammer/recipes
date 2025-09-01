@@ -5,7 +5,7 @@ import { toast } from "react-toastify";
 import { Recipe } from "../services/DTOs";
 import { observer } from "mobx-react-lite";
 import { Button, Modal } from "react-bootstrap";
-import { RecipeForm } from "./recipeForm";
+import {RecipeForm}   from "./recipeForm";
 
 export const AddRecipeModal: React.FC<{ show: boolean, onHide: () => void }> = observer(({ show, onHide }) => {
     const store = useStore();
