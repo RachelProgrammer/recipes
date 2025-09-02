@@ -56,7 +56,8 @@ export const en = {
         name_required: "Category name is required",
         name_too_short: "Name is too short",
         name_too_long: "Name is too long",
-        empty: "No categories yet. Organize your recipes by adding your first category!"
+        empty: "No categories yet. Organize your recipes by adding your first category!",
+        delete_error: "Cannot delete a category that is assigned to a recipe"
     },
     auth: {
         not_registred: "New here?",

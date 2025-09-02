@@ -6,6 +6,7 @@ import { DtoCategory } from "../services/DTOs";
 import { Button, Card } from "react-bootstrap";
 import { MdDelete, MdEdit } from "react-icons/md";
 import { useLang } from "../resources/langContext";
+import { toast } from "react-toastify";
 
 const CategoriesGallery = observer(() => {
   const store = useStore();
@@ -26,7 +27,13 @@ const CategoriesGallery = observer(() => {
     setEditCategory(undefined);
   }
 
-  const deleteCategory = (cid: string) => store.category.delete(cid);
+  const deleteCategory = async (cid: string) => {
+    try {
+      await store.category.delete(cid);
+    } catch (err) {
+      toast.error(r.categories.delete_error);
+    }
+  }
 
   return (
     <div className="h-full w-full">

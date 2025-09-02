@@ -36,6 +36,7 @@ export default class CategoryStore {
             return category;
         } catch (err: any) {
             console.error(err.response.data);
+            throw err;
         }
     }
 
@@ -46,6 +47,7 @@ export default class CategoryStore {
             return category;
         } catch (err: any) {
             console.error(err.response.data);
+            throw err;
         }
     }
 
@@ -56,7 +58,7 @@ export default class CategoryStore {
             return category;
         } catch (err: any) {
             console.error(err.response.data);
+            throw err;
         }
-        return false;
     }
 }

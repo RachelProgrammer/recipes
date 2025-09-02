@@ -57,10 +57,18 @@ export const deleteCategory: RequestHandler<{ id: string }> = async (req: Reques
     assert(id, "missing recipe id"); 
 
     try {
-        const deletedCategory = await Category.findByIdAndDelete(id).exec();
-        if (!deletedCategory) res.status(404).json({ error: 'Category not found' });
 
-        res.json({ message: 'Category deleted successfully' });
+        const recipesWithCateogry = await Recipe.findOne({ categoryId: id });
+        if (recipesWithCateogry)
+            res.status(500).json({ error: 'Cannot delete category with associated recipes'});
+        else {
+            const deletedCategory = await Category.findByIdAndDelete(id).exec();
+            if (!deletedCategory)
+                res.status(404).json({ error: 'Category not found' });
+            else 
+                res.json({ message: 'Category deleted successfully' });
+        }
+
     } catch (error) {
         console.error(error);
         res.status(500).send({ error, message: 'Failed to delete category'});
