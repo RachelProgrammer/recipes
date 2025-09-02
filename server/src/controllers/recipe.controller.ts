@@ -19,7 +19,7 @@ export const getAllReciepes: RequestHandler = async (req: AuthenticatedRequest, 
 export const createRecipe: RequestHandler = async (req: AuthenticatedRequest<{ }, {}, DtoRecipe>, res: Response): Promise<any> => {
     try {
         const userId = req.userId;
-        const { title, categoryId, image, difficulty, description, ingredients, instructions } = req.body;
+        const { title, categoryId, image, difficulty, description, servings, ingredients, instructions } = req.body;
 
         assert(!!title, "missing 'title'")
         assert(!!categoryId, "missing 'categoryId'")
@@ -31,6 +31,7 @@ export const createRecipe: RequestHandler = async (req: AuthenticatedRequest<{ }
             description,
             difficulty,
             image,
+            servings,
             ingredients,
             instructions,
             createdAt: Date.now()
@@ -47,7 +48,7 @@ export const editRecipe: RequestHandler<{ id: string }> = async (req: Request<{ 
         const { id } = req.params;
         assert(id, "missing recipe id");
 
-        const { title, categoryId, image, difficulty, description, ingredients, instructions } = req.body;
+        const { title, categoryId, image, difficulty, description, servings, ingredients, instructions } = req.body;
 
         assert(!!title, "missing 'title'")
         assert(!!categoryId, "missing 'categoryId'")
@@ -60,6 +61,7 @@ export const editRecipe: RequestHandler<{ id: string }> = async (req: Request<{ 
                 image,
                 difficulty: +difficulty,
                 description,
+                servings,
                 ingredients,
                 instructions,
                 updatedAt: Date.now()

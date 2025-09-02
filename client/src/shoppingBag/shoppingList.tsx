@@ -70,11 +70,10 @@ const ShoppingListItem: React.FC<{r: DtoRecipeRef, itemName: string}> = observer
   console.info({itemName, ...r});
 
   const deleteIngredient = (recipeId: string, name: string) =>
-    store.shoppingBag.removeIngredient(name, recipeId);
+    store.shoppingBag.removeIngredient(name, recipeId, 1);
 
   const addIngredient = (recipeId: string, name: string) =>
-    store.shoppingBag.addIngredient(name, recipeId);
-
+    store.shoppingBag.addIngredient(name, recipeId, 1);
 
   return (
     <Card.Subtitle className="w-full p-[4px] flex flex-row justify-between items-center hover:!bg-slate-100 transition-colors" >

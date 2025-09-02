@@ -7,6 +7,7 @@ export type Recipe = {
     image: any,
     difficulty: number,
     description: string,
+    servings: number,
     ingredients: Ingrident[],
     instructions: string[]
 };

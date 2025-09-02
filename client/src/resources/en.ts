@@ -43,7 +43,9 @@ export const en = {
         empty: "Your recipe book is empty! Time to fill it with your delicious creations!",
         add_items_to_cart: "Add all ingredients to shopping cart",
         no_category: "To create a recipe, please add at least one category.",
-        must_have_name: "Recipe must have a name"
+        must_have_name: "Recipe must have a name",
+        servings: "servings",
+        for: "for"
     },
     categories: {
         add_category: "New Category",

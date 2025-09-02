@@ -14,13 +14,13 @@ export async function addAllItemsToCart(recipeId: string): Promise<any> {
     return res.data;
 }
 
-export async function addItemToCart(name: string, recipeId: string): Promise<any> {
-    const res = await axios.post<any>(`${SHOPPING_BAG}/inc`, { name, recipeId });
+export async function addItemToCart(name: string, recipeId: string, count: number): Promise<any> {
+    const res = await axios.post<any>(`${SHOPPING_BAG}/inc`, { name, recipeId, count });
     return res.data;
 }
 
-export async function removeItemFromCart(name: string, recipeId: string): Promise<any> {
-    const res = await axios.post<any>(`${SHOPPING_BAG}/dec`, { name, recipeId });
+export async function removeItemFromCart(name: string, recipeId: string, count: number): Promise<any> {
+    const res = await axios.post<any>(`${SHOPPING_BAG}/dec`, { name, recipeId, count });
     return res.data;
 }
 

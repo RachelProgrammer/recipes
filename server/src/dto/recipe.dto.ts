@@ -9,6 +9,7 @@ export interface DtoRecipe {
     image: string;
     difficulty: number;
     description: string;
+    servings: number;
     ingredients: DtoIngredient[];
     instructions: string[];
 }

@@ -51,7 +51,7 @@ export const getUserCart: RequestHandler = async (req: AuthenticatedRequest, res
 export const removeItemFromCart: RequestHandler = async (req: AuthenticatedRequest, res: Response): Promise<any> => {
     try {
         const userId = req.userId;
-        const { recipeId, name } = req.body;
+        const { recipeId, name, count = 1 } = req.body;
 
         const shoppingList = await ShoppingList.findOne({ userId });
         if (!shoppingList) {
@@ -68,8 +68,8 @@ export const removeItemFromCart: RequestHandler = async (req: AuthenticatedReque
             return res.status(404).send('Recipe reference not found');
         }
 
-        if (item.refs[refIndex].count > 1) {
-            item.refs[refIndex].count -= 1;
+        if (item.refs[refIndex].count > count) {
+            item.refs[refIndex].count -= count;
         } else {
             item.refs.splice(refIndex, 1);
         }
@@ -138,23 +138,24 @@ export const addAllItemsToCart: RequestHandler = async (req: AuthenticatedReques
     }
 }
 
-export const addItemToCart: RequestHandler = async (req: AuthenticatedRequest<{}, {}, {name: string, recipeId: string}>, res: Response): Promise<any> => {
+export const addItemToCart: RequestHandler = async (req: AuthenticatedRequest<{}, {}, {name: string, recipeId: string, count?: number}>, res: Response): Promise<any> => {
     const item = req.body;
     const userId = req.userId;
+    const count = item.count ?? 1;
 
     try {
         const shoppingList = (await ShoppingList.findOne({ userId })) ?? new ShoppingList({ userId });
 
         const existingItem = shoppingList.items.find((i: any) => i.name === item.name);
         if (!existingItem)
-            shoppingList.items.push({ name: item.name, refs: [{ recipeId: item.recipeId, count: 1 }] });
+            shoppingList.items.push({ name: item.name, refs: [{ recipeId: item.recipeId, count: count }] });
         else {
             const ref = (existingItem.refs || []).find(r => r.recipeId?.toString() === item.recipeId);
             if (ref)
-                ref.count += 1;
+                ref.count += count;
             else {
                 existingItem.refs = existingItem.refs || [];
-                existingItem.refs.push({ recipeId: item.recipeId, count: 1});
+                existingItem.refs.push({ recipeId: item.recipeId, count: count});
             }
         }
 

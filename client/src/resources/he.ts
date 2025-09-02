@@ -43,7 +43,9 @@ export const he = {
         empty: "ספר המתכונים שלכם ריק! הזמן למלא אותו ביצירות טעימות!",
         add_items_to_cart: "הוספת כל הרכיבים לסל הקניות",
         no_category: "כדי ליצור מתכון, יש להוסיף לפחות קטגוריה אחת",
-        must_have_name: "חובה למלא שם למתכון"
+        must_have_name: "חובה למלא שם למתכון",
+        servings: "מנות",
+        for: "עבור"
     },
     categories: {
         add_category: "קטגוריה חדשה",

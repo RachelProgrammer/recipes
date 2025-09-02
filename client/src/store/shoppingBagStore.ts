@@ -38,18 +38,18 @@ export default class ShoppingBagStore {
         }
     }
 
-    async addIngredient(name: string, recipeId: string) {
+    async addIngredient(name: string, recipeId: string, count: number) {
         try {
-            await addItemToCart(name, recipeId);
+            await addItemToCart(name, recipeId, count);
             this.fetchAll();
         } catch (err) {
             console.error(err);
         }
     }
 
-    async removeIngredient(name: string, recipeId: string) {
+    async removeIngredient(name: string, recipeId: string, count: number) {
         try {
-            await removeItemFromCart(name, recipeId);
+            await removeItemFromCart(name, recipeId, count);
             await this.fetchAll();
         } catch (err) {
             console.error(err);

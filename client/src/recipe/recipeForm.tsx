@@ -65,6 +65,10 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
         reader.readAsDataURL(file);
     };
 
+    const handleServingsChange = (value: number) =>
+        handleSet("servings", value);
+    
+
     return (
         <div className="p-1">
             <Form className="flex flex-col gap-y-2">
@@ -130,6 +134,18 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
                         className="!w-11/12"
                     />
                 </div>
+                
+                {/* מנות */}
+                <div className="flex justify-between gap-x-10">
+                    <Form.Label className="!w-1/12 whitespace-nowrap">{r.recipes.servings}</Form.Label>
+                    <Form.Control
+                        type="number"
+                        placeholder={"0"}
+                        onChange={(e) => handleServingsChange(Number(e.target.value))}
+                        className="!w-11/12"
+                    />
+                </div>
+ 
 
                 {/* הוראות */}
                 <div className="bg-gray-100 rounded-lg p-2">

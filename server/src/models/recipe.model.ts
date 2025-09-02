@@ -14,6 +14,7 @@ const recipeSchema = new mongoose.Schema({
     image: { type: String, required: false },
     difficulty: { type: Number, required: false },
     description: { type: String, required: false },
+    servings: { type: Number, required: false },
     ingredients: { type: [ingredientSchema], required: false },
     instructions: { type: [String], required: false }
 }, { timestamps: true });

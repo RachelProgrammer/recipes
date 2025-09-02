@@ -5,11 +5,14 @@ import { MdAdd, MdRemove } from 'react-icons/md';
 import { Ingrident, Recipe } from '../services/DTOs';
 import { useStore } from '../store/storeContext';
 import { useLang } from '../resources/langContext';
+import { useState } from 'react';
 
 
 export const DisplayRecipe: React.FC<{ recipe: Recipe }> = observer(({ recipe }) => {
     const store = useStore();
     const { r } = useLang();
+
+    const [servings, setServings] = useState<number>(recipe.servings);
 
     const shoppingItems = store.shoppingBag.shoppingBagItems.reduce((acc, item) => {
         const count = item.refs.find(r => r.recipeId === recipe._id)?.count ?? 0;
@@ -19,6 +22,10 @@ export const DisplayRecipe: React.FC<{ recipe: Recipe }> = observer(({ recipe })
 
     const addAllIngredients = () =>
         store.shoppingBag.addAllIngredients(recipe._id);
+
+    const handleServingsChange = (value: number) => {
+        setServings(value);
+    };
 
     return (
         <div className="p-1">
@@ -47,14 +54,30 @@ export const DisplayRecipe: React.FC<{ recipe: Recipe }> = observer(({ recipe })
 
                 <div className="bg-gray-100 rounded-lg p-2">
                     <div className="flex justify-between pl-3">
-                        <label className="text-2xl font-bold">{r.recipes.ingredients}</label>
+                        <div className="flex justify-between pl-3 items-center gap-x-8 w-fit">
+                            <label className="text-2xl font-bold flex items-center">{r.recipes.ingredients}</label>
+                            <div className='gap-x-1 font-bold text-sm h-28px text-gray-600 rounded-sm flex flex-row items-center'>
+                                <div>{r.recipes.for}</div>
+                                <Form.Control
+                                    type="number"
+                                    step={recipe.servings}
+                                    min={recipe.servings}
+                                    placeholder={"0"}
+                                    value={servings}
+                                    onKeyDown={(e) => e.preventDefault()}
+                                    onChange={(e) => handleServingsChange(Number(e.target.value))}
+                                    className="!w-[80px] !h-[28px] text-center"
+                                />
+                                <div className=''> {r.recipes.servings} </div>
+                            </div>
+                        </div>
                         <Button variant="outline-danger" title={r.recipes.add_items_to_cart} onClick={addAllIngredients}>
                             {r.recipes.add_items_to_cart}
                         </Button>
                     </div>
                     <div className="flex flex-col gap-y-2 p-2">
                         {recipe?.ingredients?.map((i, idx) => (
-                            <Ingredient ingredient={i} recipeId={recipe._id} count={shoppingItems[i.name]} key={idx} />
+                            <Ingredient ingredient={i} recipeId={recipe._id} servingsMultiplier={servings / recipe.servings} count={shoppingItems[i.name]} key={idx} />
                         ))}
                     </div>
                 </div>
@@ -74,26 +97,26 @@ export const DisplayRecipe: React.FC<{ recipe: Recipe }> = observer(({ recipe })
 })
 
 
-const Ingredient: React.FC<{ingredient: Ingrident, recipeId: string, count: number}> = observer(({ingredient, recipeId, count}) => {
+const Ingredient: React.FC<{ ingredient: Ingrident, recipeId: string, count: number, servingsMultiplier: number }> = observer(({ ingredient, recipeId, count = 0, servingsMultiplier }) => {
     const store = useStore();
 
     const addIngredient = (name: string) =>
-        store.shoppingBag.addIngredient(name, recipeId);
+        store.shoppingBag.addIngredient(name, recipeId, servingsMultiplier);
 
     const removeIngredient = (name: string) =>
-        store.shoppingBag.removeIngredient(name, recipeId);
+        store.shoppingBag.removeIngredient(name, recipeId, servingsMultiplier);
 
     return (
         <div className="flex justify-between gap-x-2">
             <div className="w-full flex gap-x-2 hover:bg-gray-200 p-1 rounded-md">
                 <Form.Text className="text-ellipsis w-1/3 bg-transparent">{ingredient.name}</Form.Text>
-                <Form.Text className="text-ellipsis w-1/3 bg-transparent">{ingredient.amount}</Form.Text>
+                <Form.Text className="text-ellipsis w-1/3 bg-transparent">{ingredient.amount * servingsMultiplier}</Form.Text>
                 <Form.Text className="text-ellipsis w-1/3 bg-transparent">{ingredient.description}</Form.Text>
                 <div className="flex gap-x-2 print:invisible">
                     <Button variant='danger' onClick={() => addIngredient(ingredient.name)} className="h-[30px] hover:shadow-lg">
                         <MdAdd />
                     </Button>
-                    <span className='w-[20px] text-lg font-bold text-center'>{(count ?? 0) / ingredient.amount}</span>
+                    <span className='w-[20px] text-lg font-bold text-center'>{count / ingredient.amount}</span>
                     <Button variant='danger' disabled={!count} onClick={() => removeIngredient(ingredient.name)} className="h-[30px] hover:shadow-lg">
                         <MdRemove />
                     </Button>
