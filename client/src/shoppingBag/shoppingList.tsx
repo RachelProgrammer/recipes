@@ -1,12 +1,13 @@
 
 
-import { useEffect } from "react"
+import React, { useEffect } from "react"
 import Button from 'react-bootstrap/Button';
 import { useStore } from "../store/storeContext"
 import { Card } from "react-bootstrap";
 import { MdAdd, MdDelete, MdPrint, MdRemove } from "react-icons/md";
 import { observer } from "mobx-react-lite";
 import { useLang } from "../resources/langContext";
+import { DtoRecipeRef } from "../services/DTOs";
 
 const ShoppingList = observer(() => {
   const store = useStore();
@@ -19,14 +20,10 @@ const ShoppingList = observer(() => {
     store.shoppingBag.fetchAll();
   }, [store.shoppingBag])
 
-  const deleteIngredient = (recipeId: string, name: string) =>
-    store.shoppingBag.removeIngredient(name, recipeId);
-
-  const addIngredient = (recipeId: string, name: string) =>
-    store.shoppingBag.addIngredient(name, recipeId);
 
 
   const clearCart = () => store.shoppingBag.removeAll();
+
 
   return (
     <div className="h-full w-full flex items-center flex-col">
@@ -39,22 +36,7 @@ const ShoppingList = observer(() => {
               </Card.Header>
               <Card.Body className="flex flex-col w-full justify-between items-center">
                 {item.refs?.map(r =>
-                  <Card.Subtitle className="w-full p-[4px] flex flex-row justify-between items-center hover:!bg-slate-100 transition-colors" >
-                    <div className=" flex flex-row gap-x-2">
-                      <span>{r.name}</span>
-                      <span className="text-[#aaa] flex">({
-                        r.count > 1 ? <span className="flex gap-x-1"><span>{r.countDesc}</span> <span>x</span><span>{r.count}</span></span> : r.countDesc
-                      })</span>
-                    </div>
-                    <div className="flex gap-x-2 print:invisible">
-                      <Button onClick={() => addIngredient(r.recipeId, item.name)} className="btn-danger h-[30px] hover:shadow-lg">
-                        <MdAdd />
-                      </Button>
-                      <Button onClick={() => deleteIngredient(r.recipeId, item.name)} className="btn-danger h-[30px] hover:shadow-lg">
-                        <MdRemove />
-                      </Button>
-                    </div>
-                  </Card.Subtitle>
+                  <ShoppingListItem key={r.recipeId} r={r} itemName={item.name} />
                 )}
               </Card.Body>
             </Card>
@@ -80,4 +62,38 @@ const ShoppingList = observer(() => {
 
   )
 });
+
+
+const ShoppingListItem: React.FC<{r: DtoRecipeRef, itemName: string}> = observer(({r, itemName}) => {
+  const store = useStore();
+
+  console.info({itemName, ...r});
+
+  const deleteIngredient = (recipeId: string, name: string) =>
+    store.shoppingBag.removeIngredient(name, recipeId);
+
+  const addIngredient = (recipeId: string, name: string) =>
+    store.shoppingBag.addIngredient(name, recipeId);
+
+
+  return (
+    <Card.Subtitle className="w-full p-[4px] flex flex-row justify-between items-center hover:!bg-slate-100 transition-colors" >
+      <div className=" flex flex-row gap-x-2">
+        <span>{r.name}</span>
+        <span className="text-[#aaa] flex">({
+          r.count > 1 ? <span className="flex gap-x-1 flex-row-reverse"><span>{r.countDesc}</span> <span>x</span><span>{r.count}</span></span> : r.countDesc
+        })</span>
+      </div>
+      <div className="flex gap-x-2 print:invisible">
+        <Button onClick={() => addIngredient(r.recipeId, itemName)} className="btn-danger h-[30px] hover:shadow-lg">
+          <MdAdd />
+        </Button>
+        <Button onClick={() => deleteIngredient(r.recipeId, itemName)} className="btn-danger h-[30px] hover:shadow-lg">
+          <MdRemove />
+        </Button>
+      </div>
+    </Card.Subtitle>
+  )
+})
+
 export default ShoppingList;

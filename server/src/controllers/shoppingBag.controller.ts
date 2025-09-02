@@ -26,17 +26,19 @@ export const getUserCart: RequestHandler = async (req: AuthenticatedRequest, res
                 refs: (item.refs || []).map((ref: any) => {
                     const recipe = recipeMap[ref.recipeId?.toString()];
                     let countDesc = "";
+                    let amount: number = 1;
                     if (recipe) {
                         const ingredient = Array.isArray(recipe.ingredients)
                             ? recipe.ingredients.find((ing: any) => ing.name === item.name)
                             : undefined;
                         countDesc = ingredient?.description || "";
+                        amount = ingredient?.amount || 1;
                     }
                     return {
                         recipeId: ref.recipeId?.toString() || '',
                         name: `${recipe?.title ?? ""}`,
                         countDesc,
-                        count: ref.count
+                        count: ref.count * amount
                     };
                 })
             }))
