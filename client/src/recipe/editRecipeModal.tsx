@@ -23,6 +23,7 @@ export const EditRecipeModal: React.FC<{ show: boolean, onHide: (updatedRecipe?:
 
         recipe.categoryId ??= store.category.categories[0]._id;
         recipe.userId = user!._id!;
+        recipe.difficulty ??= 0;
         const success = await store.recipe.editRecipe(recipe);
         if (success)
             onHide(success);
