@@ -45,7 +45,10 @@ export const en = {
         no_category: "To create a recipe, please add at least one category.",
         must_have_name: "Recipe must have a name",
         servings: "servings",
-        for: "for"
+        for: "for",
+        upload_image: "Upload Image",
+        change_image: "Change Image",
+        remove_image: "Remove Image"
     },
     categories: {
         add_category: "New Category",

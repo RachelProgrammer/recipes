@@ -45,7 +45,10 @@ export const he = {
         no_category: "כדי ליצור מתכון, יש להוסיף לפחות קטגוריה אחת",
         must_have_name: "חובה למלא שם למתכון",
         servings: "מנות",
-        for: "עבור"
+        for: "עבור",
+        upload_image: "העלאת תמונה",
+        change_image: "שינוי תמונה",
+        remove_image: "הסרת תמונה"
     },
     categories: {
         add_category: "קטגוריה חדשה",

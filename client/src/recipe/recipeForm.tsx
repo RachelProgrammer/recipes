@@ -1,6 +1,6 @@
 import { observer } from "mobx-react-lite";
-import { useState } from "react";
-import { Form } from "react-bootstrap";
+import { useEffect, useState } from "react";
+import { Button, Form } from "react-bootstrap";
 import { MdDelete } from "react-icons/md";
 import { Ingrident, Recipe } from "../services/DTOs";
 import { useStore } from "../store/storeContext";
@@ -9,7 +9,7 @@ import { useLang } from "../resources/langContext";
 export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<React.SetStateAction<Recipe | undefined>> }> = observer(({ recipe, setRecipe }) => {
     const store = useStore();
     const { r } = useLang();
-    const [imageSrc, setImageSrc] = useState<string>("");
+    // const [imageSrc, setImageSrc] = useState<string>("");
 
     // עדכון כללי של שדות ב-Recipe
     const handleSet = <K extends keyof Recipe>(key: K, value: Recipe[K]) =>
@@ -52,15 +52,15 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
         handleSet("ingredients", updatedIngredients);
     };
 
-    const onImageSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setImageSrc(event.target.value);
-        const file = event.target.files?.[0];
+    const [imageSrc, setImageSrc] = useState<string | null>(recipe?.image);
+
+    const onImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
         if (!file) return;
 
         const reader = new FileReader();
-        reader.onloadend = () => {
-            const base64 = reader.result as string;
-            handleSet("image", base64);
+        reader.onload = () => {
+            setImageSrc(reader.result as string);
         };
         reader.readAsDataURL(file);
     };
@@ -68,6 +68,9 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
     const handleServingsChange = (value: number) =>
         handleSet("servings", Math.max(value, 1));
     
+    useEffect(() => {
+        handleSet("image", imageSrc);
+    }, [imageSrc])
 
     return (
         <div className="p-1">
@@ -128,12 +131,25 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
                 {/* תמונה */}
                 <div className="flex justify-between gap-x-10">
                     <Form.Label className="!w-1/12 whitespace-nowrap">{r.recipes.image}</Form.Label>
-                    <Form.Control
-                        value={imageSrc}
-                        type="file"
-                        onChange={onImageSelect}
-                        className="!w-11/12"
-                    />
+                    <div className="!w-11/12 flex items-center gap-4">
+                        {imageSrc && (
+                            <div className="relative group w-16 h-16">
+                                <img src={imageSrc} alt="Recipe preview" className="w-16 h-16 object-cover rounded"/>
+                                <div className="absolute inset-0 bg-black/40 rounded hidden group-hover:flex items-center justify-center">
+                                    <button title={r.recipes.remove_image} type="button" onClick={() => setImageSrc(null)} className="bg-white rounded-full p-2 shadow" >
+                                        <MdDelete className="w-5 h-5 text-red-600 hover:text-red-800" />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
+
+                        <input id="fileInput" type="file" accept="image/*" onChange={onImageSelect} className="hidden"/>
+
+                        <Button variant="outline-danger" onClick={() => document.getElementById("fileInput")?.click()} >
+                            {imageSrc ? r.recipes.change_image : r.recipes.upload_image}
+                        </Button>
+                    </div>
+
                 </div>
                 
                 {/* מנות */}
