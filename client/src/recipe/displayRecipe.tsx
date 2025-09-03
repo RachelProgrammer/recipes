@@ -5,14 +5,18 @@ import { MdAdd, MdRemove } from 'react-icons/md';
 import { Ingrident, Recipe } from '../services/DTOs';
 import { useStore } from '../store/storeContext';
 import { useLang } from '../resources/langContext';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 
 export const DisplayRecipe: React.FC<{ recipe: Recipe }> = observer(({ recipe }) => {
     const store = useStore();
     const { r } = useLang();
 
-    const [servings, setServings] = useState<number>(recipe.servings);
+    const [servings, setServings] = useState<number>(recipe.servings ?? 1);
+
+    useEffect(() => {
+        setServings(recipe.servings ?? 1);
+    }, [recipe.servings]);
 
     const shoppingItems = store.shoppingBag.shoppingBagItems.reduce((acc, item) => {
         const count = item.refs.find(r => r.recipeId === recipe._id)?.count ?? 0;
