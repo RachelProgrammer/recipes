@@ -66,7 +66,7 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
     };
 
     const handleServingsChange = (value: number) =>
-        handleSet("servings", value);
+        handleSet("servings", Math.max(value, 1));
     
 
     return (
