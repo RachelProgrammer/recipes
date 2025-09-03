@@ -115,6 +115,7 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
                     <Form.Label className="!w-1/12 whitespace-nowrap">{r.recipes.category}</Form.Label>
                     <Form.Select
                         className="!w-11/12"
+                        value={recipe?.categoryId}
                         onClick={() => store.category.fetchAll()}
                         onChange={(e) => handleSet("categoryId", e.target.value)}
                     >
