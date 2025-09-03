@@ -140,7 +140,8 @@ export const RecipeForm: React.FC<{ recipe?: Recipe; setRecipe: React.Dispatch<R
                     <Form.Label className="!w-1/12 whitespace-nowrap">{r.recipes.servings}</Form.Label>
                     <Form.Control
                         type="number"
-                        placeholder={"0"}
+                        value={recipe?.servings ?? 1}
+                        min={1}
                         onChange={(e) => handleServingsChange(Number(e.target.value))}
                         className="!w-11/12"
                     />
